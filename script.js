@@ -3,7 +3,7 @@
    ========================================================= */
 
 const CONFIG = {
-  BACKEND_URL: window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin,
+  BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : (window.location.hostname.includes("github.io") ? "http://192.168.11.105:3000" : window.location.origin)),
   PRODUCT_NAME: "طقم بيجامة سبايدرمان للأطفال",
   PRODUCT_PRICE: 199,
   OLD_PRICE: 329,
@@ -687,7 +687,7 @@ function clearInvalid(input) {
 }
 
 async function postOrder(order) {
-  // 1. Google Sheets sync if webhook URL is configured
+  // 1. Webhook / Google Sheets sync if webhook URL is configured
   const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
   if (sheetWebhook && sheetWebhook.startsWith("http")) {
     try {
@@ -700,19 +700,34 @@ async function postOrder(order) {
     } catch (_) {}
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 9000);
-  try {
-    const response = await fetch(`${CONFIG.BACKEND_URL}/api/orders`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(order),
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json().catch(() => ({}));
-  } finally {
-    clearTimeout(timeout);
+  // 2. Try network endpoints
+  const endpoints = [
+    CONFIG.BACKEND_URL ? `${CONFIG.BACKEND_URL}/api/orders` : null,
+    "http://192.168.11.105:3000/api/orders",
+    "http://localhost:3000/api/orders",
+  ].filter(Boolean);
+
+  let posted = false;
+  for (const url of endpoints) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (res.ok) {
+        posted = true;
+        return await res.json().catch(() => ({}));
+      }
+    } catch (_) {}
+  }
+
+  if (!posted) {
+    saveOrderLocally(order);
   }
 }
 
