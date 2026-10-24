@@ -687,6 +687,19 @@ function clearInvalid(input) {
 }
 
 async function postOrder(order) {
+  // 1. Google Sheets sync if webhook URL is configured
+  const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
+  if (sheetWebhook && sheetWebhook.startsWith("http")) {
+    try {
+      fetch(sheetWebhook, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order),
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 9000);
   try {
