@@ -4,7 +4,7 @@
 
 const CONFIG = {
   BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin),
-  CLOUD_URL: "https://worlds-track-card-butter.trycloudflare.com",
+  CLOUD_URL: "https://mothers-emotional-incidence-led.trycloudflare.com",
   PRODUCT_NAME: "طقم بيجامة سبايدرمان للأطفال",
   PRODUCT_PRICE: 199,
   OLD_PRICE: 329,
@@ -687,6 +687,60 @@ function clearInvalid(input) {
   if (input) input.classList.remove("invalid");
 }
 
+const GITHUB_TUNNEL_RAW = "https://raw.githubusercontent.com/ayoub-meghlabi/menara-spider-kids/main/tunnel.json";
+
+async function resolveOrderEndpoints() {
+  const isLocalEnv = window.location.protocol === "file:" || 
+                     window.location.hostname === "localhost" || 
+                     window.location.hostname === "127.0.0.1";
+  
+  const endpoints = [];
+
+  // 1. Fetch live Cloudflare tunnel URL dynamically from GitHub raw (zero-latency sync across devices)
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+    const ghRes = await fetch(`${GITHUB_TUNNEL_RAW}?_t=${Date.now()}`, {
+      cache: "no-store",
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (ghRes.ok) {
+      const data = await ghRes.json();
+      if (data && data.url && data.url.startsWith("https://")) {
+        endpoints.push(`${data.url.trim()}/api/orders`);
+      }
+    }
+  } catch (_) {}
+
+  // 2. Add static CONFIG.CLOUD_URL if set
+  if (CONFIG.CLOUD_URL && CONFIG.CLOUD_URL.startsWith("https://")) {
+    const ep = `${CONFIG.CLOUD_URL.trim()}/api/orders`;
+    if (!endpoints.includes(ep)) {
+      endpoints.push(ep);
+    }
+  }
+
+  // 3. Add CONFIG.BACKEND_URL if HTTPS
+  if (CONFIG.BACKEND_URL && CONFIG.BACKEND_URL.startsWith("https://")) {
+    const ep = `${CONFIG.BACKEND_URL.trim()}/api/orders`;
+    if (!endpoints.includes(ep)) {
+      endpoints.push(ep);
+    }
+  }
+
+  // 4. CRITICAL PRIVACY & SECURITY GUARD:
+  // ONLY add private local network IPs if running locally in dev (file:// or localhost)
+  // When running on github.io or public web, NEVER call private IPs (192.168.x.x)!
+  // This completely eliminates Chrome's "يريد الوصول إلى الأجهزة الأخرى على شبكتك المحلية" permission prompt!
+  if (isLocalEnv) {
+    endpoints.push("http://localhost:3000/api/orders");
+    endpoints.push("http://192.168.11.105:3000/api/orders");
+  }
+
+  return endpoints;
+}
+
 async function postOrder(order) {
   // 1. Webhook / Google Sheets sync if webhook URL is configured
   const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
@@ -701,19 +755,15 @@ async function postOrder(order) {
     } catch (_) {}
   }
 
-  // 2. Try network endpoints (Clean Cloudflare HTTPS / Direct — Zero Prompts)
-  const endpoints = [
-    CONFIG.CLOUD_URL ? `${CONFIG.CLOUD_URL}/api/orders` : null,
-    CONFIG.BACKEND_URL && CONFIG.BACKEND_URL !== CONFIG.CLOUD_URL ? `${CONFIG.BACKEND_URL}/api/orders` : null,
-    "http://192.168.11.105:3000/api/orders",
-    "http://localhost:3000/api/orders",
-  ].filter(Boolean);
-
+  // 2. Try network endpoints
+  const endpoints = await resolveOrderEndpoints();
   let posted = false;
+  let responseData = null;
+
   for (const url of endpoints) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 4000);
+      const timeout = setTimeout(() => controller.abort(), 4500);
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -723,13 +773,18 @@ async function postOrder(order) {
       clearTimeout(timeout);
       if (res.ok) {
         posted = true;
-        return await res.json().catch(() => ({}));
+        responseData = await res.json().catch(() => ({}));
+        break;
       }
     } catch (_) {}
   }
 
-  if (!posted) {
+  if (posted) {
     saveOrderLocally(order);
+    return responseData || { success: true };
+  } else {
+    saveOrderLocally(order);
+    return { success: false, localOnly: true };
   }
 }
 
