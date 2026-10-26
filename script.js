@@ -866,11 +866,6 @@ function initForm() {
       setError("city-error", "اختار مدينتك من القائمة باش نحسبو التوصيل.");
       valid = false;
     }
-    if (!address || address.length < 3) {
-      setError("address-error", "دخل العنوان بالتفصيل (الحي، الشارع أو الإقامة) باش يوصلك الطلب.");
-      if (addressInput) markInvalid(addressInput);
-      valid = false;
-    }
     if (!age) {
       setError("age-error", "اختار عمر الطفل باش نبعثو المقاس المناسب.");
       markInvalid(ageSelect);
