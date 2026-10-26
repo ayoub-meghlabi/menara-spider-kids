@@ -3,8 +3,8 @@
    ========================================================= */
 
 const CONFIG = {
-  BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : (window.location.hostname.includes("github.io") ? "https://menara-shop-2026.loca.lt" : window.location.origin)),
-  CLOUD_URL: "https://menara-shop-2026.loca.lt",
+  BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin),
+  CLOUD_URL: "https://worlds-track-card-butter.trycloudflare.com",
   PRODUCT_NAME: "طقم بيجامة سبايدرمان للأطفال",
   PRODUCT_PRICE: 199,
   OLD_PRICE: 329,
@@ -701,10 +701,10 @@ async function postOrder(order) {
     } catch (_) {}
   }
 
-  // 2. Try network endpoints
+  // 2. Try network endpoints (Clean Cloudflare HTTPS / Direct — Zero Prompts)
   const endpoints = [
-    CONFIG.BACKEND_URL ? `${CONFIG.BACKEND_URL}/api/orders` : null,
-    "https://menara-shop-2026.loca.lt/api/orders",
+    CONFIG.CLOUD_URL ? `${CONFIG.CLOUD_URL}/api/orders` : null,
+    CONFIG.BACKEND_URL && CONFIG.BACKEND_URL !== CONFIG.CLOUD_URL ? `${CONFIG.BACKEND_URL}/api/orders` : null,
     "http://192.168.11.105:3000/api/orders",
     "http://localhost:3000/api/orders",
   ].filter(Boolean);
@@ -716,10 +716,7 @@ async function postOrder(order) {
       const timeout = setTimeout(() => controller.abort(), 4000);
       const res = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Bypass-Tunnel-Reminder": "true"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(order),
         signal: controller.signal,
       });
