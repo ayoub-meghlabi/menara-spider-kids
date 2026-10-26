@@ -3,7 +3,8 @@
    ========================================================= */
 
 const CONFIG = {
-  BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : (window.location.hostname.includes("github.io") ? "http://192.168.11.105:3000" : window.location.origin)),
+  BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : (window.location.hostname.includes("github.io") ? "https://menara-shop-2026.loca.lt" : window.location.origin)),
+  CLOUD_URL: "https://menara-shop-2026.loca.lt",
   PRODUCT_NAME: "طقم بيجامة سبايدرمان للأطفال",
   PRODUCT_PRICE: 199,
   OLD_PRICE: 329,
@@ -703,6 +704,7 @@ async function postOrder(order) {
   // 2. Try network endpoints
   const endpoints = [
     CONFIG.BACKEND_URL ? `${CONFIG.BACKEND_URL}/api/orders` : null,
+    "https://menara-shop-2026.loca.lt/api/orders",
     "http://192.168.11.105:3000/api/orders",
     "http://localhost:3000/api/orders",
   ].filter(Boolean);
@@ -714,7 +716,10 @@ async function postOrder(order) {
       const timeout = setTimeout(() => controller.abort(), 4000);
       const res = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Bypass-Tunnel-Reminder": "true"
+        },
         body: JSON.stringify(order),
         signal: controller.signal,
       });
