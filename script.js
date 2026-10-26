@@ -696,7 +696,16 @@ async function resolveOrderEndpoints() {
   
   const endpoints = [];
 
-  // 1. Fetch live Cloudflare tunnel URL dynamically from GitHub raw (zero-latency sync across devices)
+  // 1. Last known working tunnel URL (instant zero-delay cache)
+  try {
+    const lastWorking = localStorage.getItem("menara_working_tunnel");
+    if (lastWorking && lastWorking.startsWith("https://")) {
+      const ep = `${lastWorking.trim()}/api/orders`;
+      if (!endpoints.includes(ep)) endpoints.push(ep);
+    }
+  } catch (_) {}
+
+  // 2. Fetch live Cloudflare tunnel URL dynamically from GitHub raw (bypassing browser cache)
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2500);
@@ -708,31 +717,40 @@ async function resolveOrderEndpoints() {
     if (ghRes.ok) {
       const data = await ghRes.json();
       if (data && data.url && data.url.startsWith("https://")) {
-        endpoints.push(`${data.url.trim()}/api/orders`);
+        const ep = `${data.url.trim()}/api/orders`;
+        if (!endpoints.includes(ep)) endpoints.push(ep);
       }
     }
   } catch (_) {}
 
-  // 2. Add static CONFIG.CLOUD_URL if set
+  // 3. Fallback: GitHub API directly (bypasses any Fastly CDN edge cache on GitHub Pages)
+  if (endpoints.length <= 1) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2500);
+      const apiRes = await fetch(`https://api.github.com/repos/menara-store-ma/menara-spider-kids/contents/tunnel.json?_t=${Date.now()}`, {
+        headers: { "Accept": "application/vnd.github.raw+json" },
+        cache: "no-store",
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (apiRes.ok) {
+        const data = await apiRes.json();
+        if (data && data.url && data.url.startsWith("https://")) {
+          const ep = `${data.url.trim()}/api/orders`;
+          if (!endpoints.includes(ep)) endpoints.push(ep);
+        }
+      }
+    } catch (_) {}
+  }
+
+  // 4. Add static CONFIG.CLOUD_URL if set
   if (CONFIG.CLOUD_URL && CONFIG.CLOUD_URL.startsWith("https://")) {
     const ep = `${CONFIG.CLOUD_URL.trim()}/api/orders`;
-    if (!endpoints.includes(ep)) {
-      endpoints.push(ep);
-    }
+    if (!endpoints.includes(ep)) endpoints.push(ep);
   }
 
-  // 3. Add CONFIG.BACKEND_URL if HTTPS
-  if (CONFIG.BACKEND_URL && CONFIG.BACKEND_URL.startsWith("https://")) {
-    const ep = `${CONFIG.BACKEND_URL.trim()}/api/orders`;
-    if (!endpoints.includes(ep)) {
-      endpoints.push(ep);
-    }
-  }
-
-  // 4. CRITICAL PRIVACY & SECURITY GUARD:
-  // ONLY add private local network IPs if running locally in dev (file:// or localhost)
-  // When running on github.io or public web, NEVER call private IPs (192.168.x.x)!
-  // This completely eliminates Chrome's "يريد الوصول إلى الأجهزة الأخرى على شبكتك المحلية" permission prompt!
+  // 5. Local environment only
   if (isLocalEnv) {
     endpoints.push("http://localhost:3000/api/orders");
     endpoints.push("http://192.168.11.105:3000/api/orders");
@@ -763,7 +781,7 @@ async function postOrder(order) {
   for (const url of endpoints) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 4500);
+      const timeout = setTimeout(() => controller.abort(), 5000);
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -774,16 +792,26 @@ async function postOrder(order) {
       if (res.ok) {
         posted = true;
         responseData = await res.json().catch(() => ({}));
+        // Remember the working tunnel base URL for immediate reuse
+        try {
+          const workingBase = url.replace("/api/orders", "");
+          if (workingBase.startsWith("https://")) {
+            localStorage.setItem("menara_working_tunnel", workingBase);
+          }
+        } catch (_) {}
         break;
       }
     } catch (_) {}
   }
 
   if (posted) {
+    order.syncedToServer = true;
     saveOrderLocally(order);
     return responseData || { success: true };
   } else {
+    order.syncedToServer = false;
     saveOrderLocally(order);
+    scheduleBackgroundRetry();
     return { success: false, localOnly: true };
   }
 }
@@ -796,6 +824,43 @@ function saveOrderLocally(order) {
   } catch {
     /* storage can be unavailable in private mode */
   }
+}
+
+let syncRetryTimer = null;
+function scheduleBackgroundRetry() {
+  if (syncRetryTimer) return;
+  syncRetryTimer = setInterval(async () => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("pending_orders") || "[]");
+      const unsynced = existing.filter((o) => !o.syncedToServer);
+      if (!unsynced.length) {
+        clearInterval(syncRetryTimer);
+        syncRetryTimer = null;
+        return;
+      }
+      const endpoints = await resolveOrderEndpoints();
+      for (const order of unsynced) {
+        for (const url of endpoints) {
+          try {
+            const controller = new AbortController();
+            const tm = setTimeout(() => controller.abort(), 4000);
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(order),
+              signal: controller.signal,
+            });
+            clearTimeout(tm);
+            if (res.ok) {
+              order.syncedToServer = true;
+              saveOrderLocally(order);
+              break;
+            }
+          } catch (_) {}
+        }
+      }
+    } catch (_) {}
+  }, 12000);
 }
 
 function initForm() {
@@ -971,6 +1036,47 @@ function initForm() {
     });
   });
 }
+
+window.resetOrderForm = function() {
+  const form = $("#orderForm");
+  const successBox = $("#success-box");
+  const submitBtn = $("#submit-btn");
+  if (successBox) successBox.classList.add("hidden");
+  if (form) {
+    form.classList.remove("hidden");
+    const nameInput = $("#customer-name");
+    const phoneInput = $("#customer-phone");
+    const addressInput = $("#customer-address");
+    const noteInput = $("#order-note");
+    if (nameInput) { nameInput.value = ""; clearInvalid(nameInput); }
+    if (phoneInput) { phoneInput.value = ""; clearInvalid(phoneInput); }
+    if (addressInput) { addressInput.value = ""; clearInvalid(addressInput); }
+    if (noteInput) noteInput.value = "";
+    clearError("name-error");
+    clearError("phone-error");
+    clearError("city-error");
+    clearError("address-error");
+    clearError("age-error");
+  }
+  state.submitting = false;
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    const bundle = getBundle();
+    submitBtn.innerHTML = `<span>تأكيد الطلب - ${formatMad(bundle.total)} عند الاستلام</span>`;
+  }
+  const formSection = $("#order");
+  if (formSection) formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+window.addEventListener("pageshow", () => {
+  state.submitting = false;
+  const submitBtn = $("#submit-btn");
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    const bundle = getBundle();
+    submitBtn.innerHTML = `<span>تأكيد الطلب - ${formatMad(bundle.total)} عند الاستلام</span>`;
+  }
+});
 
 /* ---------------- Page behavior ---------------- */
 function initHeader() {
