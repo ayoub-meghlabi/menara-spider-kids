@@ -806,13 +806,15 @@ function initForm() {
   const nameInput = $("#customer-name");
   const phoneInput = $("#customer-phone");
   const cityHidden = $("#customer-city");
+  const addressInput = $("#customer-address");
   const ageSelect = $("#customer-age");
   const noteInput = $("#order-note");
 
-  [nameInput, phoneInput].forEach((input) => {
+  [nameInput, phoneInput, addressInput].filter(Boolean).forEach((input) => {
     input.addEventListener("input", () => {
       clearInvalid(input);
-      clearError(`${input.id === "customer-name" ? "name" : "phone"}-error`);
+      const fieldName = input.id.replace("customer-", "");
+      clearError(`${fieldName}-error`);
     });
   });
 
@@ -839,14 +841,16 @@ function initForm() {
     const name = nameInput.value.trim().replace(/\s+/g, " ");
     const phone = normalizePhone(phoneInput.value);
     const city = cityHidden.value.trim();
+    const address = addressInput ? addressInput.value.trim() : "";
     const age = ageSelect.value;
     let valid = true;
 
     clearError("name-error");
     clearError("phone-error");
     clearError("city-error");
+    clearError("address-error");
     clearError("age-error");
-    [nameInput, phoneInput, ageSelect].forEach(clearInvalid);
+    [nameInput, phoneInput, addressInput, ageSelect].filter(Boolean).forEach(clearInvalid);
 
     if (name.length < 2 || !/[\u0600-\u06FFa-zA-Z]/.test(name)) {
       setError("name-error", "دخل الاسم الكامل باش نعرفو كيفاش نناديو عليك.");
@@ -860,6 +864,11 @@ function initForm() {
     }
     if (!city) {
       setError("city-error", "اختار مدينتك من القائمة باش نحسبو التوصيل.");
+      valid = false;
+    }
+    if (!address || address.length < 3) {
+      setError("address-error", "دخل العنوان بالتفصيل (الحي، الشارع أو الإقامة) باش يوصلك الطلب.");
+      if (addressInput) markInvalid(addressInput);
       valid = false;
     }
     if (!age) {
@@ -885,6 +894,7 @@ function initForm() {
       name,
       phone,
       city,
+      address,
       quantity: orderQty,
       pieces: orderQty * 3,
       bundles: orderQty,

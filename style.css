@@ -968,13 +968,21 @@ ul { list-style: none; }
   color: var(--rose);
 }
 .age-active-val {
-  color: #e11d48;
+  color: #059669;
   font-weight: 800;
-  background: rgba(225, 29, 72, 0.08);
-  padding: 3px 12px;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 4px 14px;
   border-radius: 99px;
   font-size: 13px;
-  border: 1px solid rgba(225, 29, 72, 0.2);
+  border: 1.5px solid #10b981;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.age-active-val::before {
+  content: "✓";
+  font-weight: 900;
+  color: #059669;
 }
 .age-pills-grid {
   display: flex;
@@ -995,16 +1003,17 @@ ul { list-style: none; }
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .age-pill-btn:hover {
-  border-color: #cbd5e1;
+  border-color: #10b981;
+  color: #059669;
   transform: translateY(-1px);
 }
 .age-pill-btn.active {
-  background: #e11d48;
-  border-color: #e11d48;
+  background: #059669;
+  border-color: #059669;
   color: #ffffff;
   font-weight: 800;
-  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
-  transform: scale(1.02);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+  transform: scale(1.03);
 }
 .quantity-stock-row {
   display: flex;
