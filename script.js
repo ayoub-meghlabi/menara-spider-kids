@@ -4,7 +4,7 @@
 
 const CONFIG = {
   BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin),
-  CLOUD_URL: "https://mothers-emotional-incidence-led.trycloudflare.com",
+  CLOUD_URL: "https://often-legislation-saint-population.trycloudflare.com",
   PRODUCT_NAME: "طقم بيجامة سبايدرمان للأطفال",
   PRODUCT_PRICE: 199,
   OLD_PRICE: 329,
