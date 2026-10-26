@@ -687,7 +687,7 @@ function clearInvalid(input) {
   if (input) input.classList.remove("invalid");
 }
 
-const GITHUB_TUNNEL_RAW = "https://raw.githubusercontent.com/ayoub-meghlabi/menara-spider-kids/main/tunnel.json";
+const GITHUB_TUNNEL_RAW = "https://raw.githubusercontent.com/menara-store-ma/menara-spider-kids/main/tunnel.json";
 
 async function resolveOrderEndpoints() {
   const isLocalEnv = window.location.protocol === "file:" || 
