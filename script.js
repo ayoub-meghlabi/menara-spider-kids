@@ -73,7 +73,12 @@ function formatMad(value) {
 }
 
 function normalizePhone(phone) {
-  return String(phone || "").replace(/[\s\-().]/g, "").replace(/[^\d+]/g, "");
+  let val = String(phone || "").replace(/[\s\-().]/g, "").replace(/[^\d+]/g, "");
+  if (val.startsWith("+212")) val = "0" + val.slice(4);
+  else if (val.startsWith("00212")) val = "0" + val.slice(5);
+  else if (val.startsWith("212")) val = "0" + val.slice(3);
+  else if (/^[5-7]\d{8}$/.test(val)) val = "0" + val;
+  return val;
 }
 
 function isValidMoroccanPhone(phone) {
