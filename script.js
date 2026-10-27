@@ -764,52 +764,49 @@ async function postOrder(order) {
   let posted = false;
   let responseData = null;
 
-  // 1. السيرفر السحابي الدائم 24/7 على Google Cloud (يعمل دائماً حتى لو كان الحاسوب مطفأ)
+  // 1. استهداف السيرفر السحابي الدائم والنفق السريع بالتوازي (In Parallel) لأقصى سرعة
   const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
+  const candidates = [];
   if (sheetWebhook && sheetWebhook.startsWith("http")) {
+    candidates.push({ url: sheetWebhook, isSheet: true });
+  }
+
+  const workingTunnel = localStorage.getItem("menara_working_tunnel");
+  if (workingTunnel && workingTunnel.startsWith("https://")) {
+    candidates.push({ url: `${workingTunnel}/api/orders`, isSheet: false });
+  }
+
+  if (candidates.length === 0) {
+    const endpoints = await resolveOrderEndpoints();
+    endpoints.forEach(ep => candidates.push({ url: ep, isSheet: false }));
+  }
+
+  // تشغيل الإرسال بالتوازي وأخذ أسرع رد فوراً
+  const promises = candidates.map(async (c) => {
     try {
       const controller = new AbortController();
-      const tm = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch(sheetWebhook, {
+      const tm = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch(c.url, {
         method: "POST",
+        headers: c.isSheet ? {} : { "Content-Type": "application/json" },
         body: JSON.stringify(order),
         signal: controller.signal
       });
       clearTimeout(tm);
       if (res.ok) {
-        posted = true;
-        const sData = await res.json().catch(() => ({}));
-        responseData = sData || { success: true, orderId: order.orderId };
+        return { ok: true, data: await res.json().catch(() => ({})) };
       }
     } catch (_) {}
-  }
+    return { ok: false };
+  });
 
-  // 2. فحص السيرفر المحلي والنفق السحابي كنسخة إضافية متزامنة
-  const endpoints = await resolveOrderEndpoints();
-  for (const url of endpoints) {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 4000);
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-      if (res.ok) {
-        posted = true;
-        if (!responseData) responseData = await res.json().catch(() => ({}));
-        try {
-          const workingBase = url.replace("/api/orders", "");
-          if (workingBase.startsWith("https://")) {
-            localStorage.setItem("menara_working_tunnel", workingBase);
-          }
-        } catch (_) {}
-        break;
-      }
-    } catch (_) {}
-  }
+  try {
+    const fastest = await Promise.race(promises);
+    if (fastest && fastest.ok) {
+      posted = true;
+      responseData = fastest.data || { success: true };
+    }
+  } catch (_) {}
 
   if (posted) {
     order.syncedToServer = true;
@@ -819,7 +816,8 @@ async function postOrder(order) {
     order.syncedToServer = false;
     saveOrderLocally(order);
     scheduleBackgroundRetry();
-    return { success: false, localOnly: true };
+    // تأكيد فوري متفائل للزبون لمنع الانتظار والملل
+    return { success: true, localOnly: true };
   }
 }
 
@@ -999,13 +997,12 @@ function initForm() {
 
     saveOrderLocally(order);
 
-    let serverAccepted = false;
     try {
-      await postOrder(order);
-      serverAccepted = true;
-    } catch {
-      serverAccepted = false;
-    }
+      await Promise.race([
+        postOrder(order),
+        new Promise(resolve => setTimeout(resolve, 1800))
+      ]);
+    } catch (_) {}
 
     track("Lead", {
       content_name: CONFIG.PRODUCT_NAME,
