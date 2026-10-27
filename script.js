@@ -5,6 +5,7 @@
 const CONFIG = {
   BACKEND_URL: localStorage.getItem("menara_backend_url") || (window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin),
   CLOUD_URL: "https://underlying-jaguar-aus-safely.trycloudflare.com",
+  GOOGLE_SHEET_WEBHOOK: "https://script.google.com/macros/s/AKfycbwVTa6dj32XVpKt17VV9GtITF8sUxNIGi9G9LRpP2WRgFpGm_jVqb_2zOmNb2FOn1NfiQ/exec",
   PRODUCT_NAME: "طقم بيجامة سبايدرمان للأطفال",
   PRODUCT_PRICE: 199,
   OLD_PRICE: 329,
@@ -760,28 +761,35 @@ async function resolveOrderEndpoints() {
 }
 
 async function postOrder(order) {
-  // 1. Webhook / Google Sheets sync if webhook URL is configured
-  const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
-  if (sheetWebhook && sheetWebhook.startsWith("http")) {
-    try {
-      fetch(sheetWebhook, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order),
-      }).catch(() => {});
-    } catch (_) {}
-  }
-
-  // 2. Try network endpoints
-  const endpoints = await resolveOrderEndpoints();
   let posted = false;
   let responseData = null;
 
+  // 1. السيرفر السحابي الدائم 24/7 على Google Cloud (يعمل دائماً حتى لو كان الحاسوب مطفأ)
+  const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
+  if (sheetWebhook && sheetWebhook.startsWith("http")) {
+    try {
+      const controller = new AbortController();
+      const tm = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(sheetWebhook, {
+        method: "POST",
+        body: JSON.stringify(order),
+        signal: controller.signal
+      });
+      clearTimeout(tm);
+      if (res.ok) {
+        posted = true;
+        const sData = await res.json().catch(() => ({}));
+        responseData = sData || { success: true, orderId: order.orderId };
+      }
+    } catch (_) {}
+  }
+
+  // 2. فحص السيرفر المحلي والنفق السحابي كنسخة إضافية متزامنة
+  const endpoints = await resolveOrderEndpoints();
   for (const url of endpoints) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 4000);
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -791,8 +799,7 @@ async function postOrder(order) {
       clearTimeout(timeout);
       if (res.ok) {
         posted = true;
-        responseData = await res.json().catch(() => ({}));
-        // Remember the working tunnel base URL for immediate reuse
+        if (!responseData) responseData = await res.json().catch(() => ({}));
         try {
           const workingBase = url.replace("/api/orders", "");
           if (workingBase.startsWith("https://")) {
@@ -838,9 +845,14 @@ function scheduleBackgroundRetry() {
         syncRetryTimer = null;
         return;
       }
+      const sheetWebhook = CONFIG.GOOGLE_SHEET_WEBHOOK || localStorage.getItem("menara_sheet_webhook");
       const endpoints = await resolveOrderEndpoints();
+      const allTargets = [];
+      if (sheetWebhook && sheetWebhook.startsWith("http")) allTargets.push(sheetWebhook);
+      allTargets.push(...endpoints);
+
       for (const order of unsynced) {
-        for (const url of endpoints) {
+        for (const url of allTargets) {
           try {
             const controller = new AbortController();
             const tm = setTimeout(() => controller.abort(), 4000);
