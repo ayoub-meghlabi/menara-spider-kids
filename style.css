@@ -1601,10 +1601,10 @@ ul { list-style: none; }
 
 /* Hero product photo is portrait */
 .hero-title { font-size: clamp(40px, 5.7vw, 74px); }
-.product-stage { width: min(520px, 100%); aspect-ratio: 4 / 5; }
+.product-stage { width: min(580px, 100%); aspect-ratio: 4 / 5; }
 .product-img {
-  width: min(78%, 380px);
-  max-width: 380px;
+  width: min(88%, 440px);
+  max-width: 440px;
   aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 30px;
@@ -1818,8 +1818,8 @@ ul { list-style: none; }
   .announcement-timer { display: inline-flex; font-size: 10.5px; padding: 1px 7px; }
   .announcement-timer b { min-width: 16px; }
   .announcement a { font-size: 10.5px; display: inline-flex; align-items: center; min-height: 26px; padding: 1px 7px; border-radius: 99px; background: rgba(32, 23, 5, 0.09); }
-  .product-stage { width: min(390px, 94vw); aspect-ratio: 4 / 5; }
-  .product-img { width: min(86%, 330px); }
+  .product-stage { width: min(440px, 98vw); aspect-ratio: 4 / 5; }
+  .product-img { width: min(94%, 390px); max-width: 390px; }
   .chip-anc { top: 10%; right: 0; }
   .chip-battery { top: 44%; left: -1%; }
   .chip-hifi { bottom: 11%; right: 3%; }
@@ -1988,7 +1988,8 @@ ul { list-style: none; }
 }
 .pack-opt-card .poc-img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 11;
+  min-height: 120px;
   border-radius: 12px;
   overflow: hidden;
   background: #080b12;
