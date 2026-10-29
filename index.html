@@ -18,7 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet" />
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20261029v6" />
+  <link rel="stylesheet" href="style.css?v=20261029v7" />
 
   <!-- Meta Pixel Code -->
   <script>
@@ -230,42 +230,56 @@
               <div class="field-error" id="phone-error" style="color:#ef4444; font-size:12px; font-weight:700; display:none;"></div>
             </div>
 
-            <div class="form-field">
-              <label for="customer-city">المدينة *</label>
-              <input type="text" id="customer-city" name="city" list="moroccan-cities-list" class="form-input" placeholder="اكتب أو اختر مدينتك (مثال: الدار البيضاء، مراكش، طنجة...)" required />
-              <datalist id="moroccan-cities-list">
-                <option value="الدار البيضاء"></option>
-                <option value="الرباط"></option>
-                <option value="مراكش"></option>
-                <option value="فاس"></option>
-                <option value="طنجة"></option>
-                <option value="أكادير"></option>
-                <option value="مكناس"></option>
-                <option value="وجدة"></option>
-                <option value="القنيطرة"></option>
-                <option value="تطوان"></option>
-                <option value="سلا"></option>
-                <option value="تمارة"></option>
-                <option value="المحمدية"></option>
-                <option value="الجديدة"></option>
-                <option value="آسفي"></option>
-                <option value="بني ملال"></option>
-                <option value="خريبكة"></option>
-                <option value="الناظور"></option>
-                <option value="سطات"></option>
-                <option value="برشيد"></option>
-                <option value="العرائش"></option>
-                <option value="تازة"></option>
-                <option value="الخميسات"></option>
-                <option value="العيون"></option>
-                <option value="الداخلة"></option>
-                <option value="ورزازات"></option>
-                <option value="الصويرة"></option>
-                <option value="الحسيمة"></option>
-                <option value="تارودانت"></option>
-                <option value="كلميم"></option>
-                <option value="بركان"></option>
-              </datalist>
+            <div class="form-field city-form-field">
+              <div class="field-label-row">
+                <label for="customer-city">المدينة *</label>
+                <button type="button" class="btn-more-cities" id="btn-more-cities" aria-label="عرض جميع مدن المغرب">
+                  <span>المزيد من المدن ▾</span>
+                </button>
+              </div>
+              <div class="city-input-wrap">
+                <input type="text" id="customer-city" name="city" class="form-input" placeholder="اكتب اسم مدينتك للبحث، أو اضغط 'المزيد'..." required autocomplete="off" />
+                <button type="button" class="city-input-btn" id="btn-city-icon" title="استعراض قائمة المدن">📍</button>
+              </div>
+
+              <!-- نافذة منسدلة أنيقة لجميع مدن المغرب مرتبة أبجدياً -->
+              <div class="cities-dropdown-panel" id="cities-dropdown-panel" style="display: none;">
+                <div class="cities-panel-top">
+                  <div class="cities-panel-title">
+                    <span>🇲🇦</span>
+                    <span>جميع مدن ومناطق المغرب (مرتبة أبجدياً)</span>
+                  </div>
+                  <button type="button" class="btn-close-cities" id="btn-close-cities" aria-label="إغلاق">✕</button>
+                </div>
+
+                <!-- شريط بحث داخلي للتصفية السريعة -->
+                <div class="cities-filter-wrap">
+                  <span class="cities-filter-icon">🔍</span>
+                  <input type="text" id="cities-panel-filter" class="cities-filter-input" placeholder="اكتب اسم مدينتك للبحث السريع..." />
+                </div>
+
+                <!-- أزرار سريعة للمدن الأكثر طلباً -->
+                <div class="popular-cities-strip">
+                  <span class="popular-label">المدن الكبرى الأكثر طلباً:</span>
+                  <div class="popular-chips">
+                    <button type="button" class="popular-chip" data-city="الدار البيضاء">الدار البيضاء</button>
+                    <button type="button" class="popular-chip" data-city="الرباط">الرباط</button>
+                    <button type="button" class="popular-chip" data-city="مراكش">مراكش</button>
+                    <button type="button" class="popular-chip" data-city="طنجة">طنجة</button>
+                    <button type="button" class="popular-chip" data-city="فاس">فاس</button>
+                    <button type="button" class="popular-chip" data-city="أكادير">أكادير</button>
+                    <button type="button" class="popular-chip" data-city="مكناس">مكناس</button>
+                    <button type="button" class="popular-chip" data-city="القنيطرة">القنيطرة</button>
+                    <button type="button" class="popular-chip" data-city="وجدة">وجدة</button>
+                    <button type="button" class="popular-chip" data-city="تطوان">تطوان</button>
+                  </div>
+                </div>
+
+                <!-- شبكة جميع مدن المغرب بالترتيب الأبجدي -->
+                <div class="all-cities-grid-container" id="all-cities-container">
+                  <!-- سيتم تعبئتها بواسطة السكريبت بجميع مدن المغرب -->
+                </div>
+              </div>
               <div class="field-error" id="city-error" style="color:#ef4444; font-size:12px; font-weight:700; display:none;"></div>
             </div>
 
@@ -560,6 +574,6 @@
   </div>
 
   <!-- Main JavaScript Logic -->
-  <script src="script.js?v=20261029v6"></script>
+  <script src="script.js?v=20261029v7"></script>
 </body>
 </html>

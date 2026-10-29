@@ -645,99 +645,361 @@ body {
 .order-form-box {
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 14px 12px;
-  margin-top: 4px;
+  border-radius: 14px;
+  padding: 16px 14px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .order-form-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14.5px;
+  gap: 8px;
+  font-size: 15px;
   font-weight: 900;
   color: #0f172a;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #e2e8f0;
 }
 
 .order-form-header span.dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   background: var(--accent);
   border-radius: 50%;
   display: inline-block;
 }
 
+/* Explicit Flex Form With Distinct Field Spacing */
+#order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  position: relative;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .form-field label {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
-  color: #334155;
+  color: #1e293b;
+  margin: 0;
 }
 
 .form-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 11px 14px;
   border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #ffffff;
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 700;
   color: #0f172a;
   outline: none;
+  box-sizing: border-box;
   transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .form-input:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+  background: #ffffff;
 }
 
 .form-input::placeholder {
   color: #94a3b8;
   font-weight: 500;
+  font-size: 12.5px;
 }
 
-/* Action Button: Balanced, Compact & Sleek */
+/* City Field with More Cities Button & Dropdown */
+.city-form-field {
+  position: relative;
+}
+
+.btn-more-cities {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #1d4ed8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-more-cities:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+  transform: translateY(-1px);
+}
+
+.city-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.city-input-wrap .form-input {
+  padding-left: 36px;
+}
+
+.city-input-btn {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: transform 0.15s;
+}
+
+.city-input-btn:hover {
+  transform: translateY(-50%) scale(1.15);
+}
+
+/* Dropdown Panel of Moroccan Cities */
+.cities-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: citiesFadeDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes citiesFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cities-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cities-panel-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-close-cities {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.btn-close-cities:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.cities-filter-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cities-filter-icon {
+  position: absolute;
+  right: 10px;
+  font-size: 13px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.cities-filter-input {
+  width: 100%;
+  padding: 8px 30px 8px 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 7px;
+  background: #f8fafc;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.cities-filter-input:focus {
+  border-color: #0284c7;
+  background: #ffffff;
+}
+
+.popular-cities-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.popular-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.popular-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.popular-chip {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1d4ed8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.popular-chip:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.all-cities-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  overflow-y: auto;
+  max-height: 200px;
+  padding: 4px 2px;
+  border-top: 1px solid #f1f5f9;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 480px) {
+  .all-cities-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 175px;
+  }
+}
+
+.city-item-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: right;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.city-item-btn:hover {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+  font-weight: 800;
+}
+
+/* Action Button: Separated with Margin-Top to Never Overlap Note Box */
 .btn-submit-order {
   width: 100%;
+  margin-top: 14px; /* Essential: clear separation from customer note field */
   background: linear-gradient(135deg, #10b981, #059669);
   color: #ffffff;
   border: none;
-  border-radius: 9px;
-  padding: 11px 14px;
+  border-radius: 10px;
+  padding: 13px 16px;
   font-family: inherit;
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.28);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .btn-submit-order:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.38);
 }
 
 .btn-submit-order span.sub-text {
   font-size: 10.5px;
   font-weight: 600;
-  opacity: 0.92;
+  opacity: 0.94;
 }
 
 /* Divider Between Action & WhatsApp Buttons */
@@ -745,9 +1007,9 @@ body {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 8px 0 4px 0;
+  margin: 12px 0 6px 0;
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   width: 100%;
 }
@@ -767,6 +1029,7 @@ body {
 /* Secondary WhatsApp Order Button */
 .btn-whatsapp-order {
   width: 100%;
+  margin-top: 4px;
   background: #25d366;
   color: #ffffff;
   border: none;

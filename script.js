@@ -232,6 +232,128 @@
     });
   }
 
+  /* ---------------- Moroccan Cities Selector ---------------- */
+  const MOROCCAN_CITIES = [
+    "آسفي", "آيت ملول", "أبي الجعد", "أزرو", "أزيلال", "أصيلة", "أكادير", "أرفود", "إفران", "إمزورن",
+    "إنزكان", "ابن جرير", "ابن سليمان", "البروج", "بئر جديد", "بوعرفة", "بوزنيقة", "بولمان", "بني ملال",
+    "بركان", "برشيد", "تارودانت", "تازة", "تاونات", "تاوريرت", "تاهلة", "تحناوت", "تطوان", "تمارة",
+    "تنغير", "تيزنيت", "تيفلت", "جرسيف", "جرادة", "الجديدة", "الحسيمة", "خريبكة", "خنيفرة", "الخميسات",
+    "الداخلة", "الدار البيضاء", "الدروة", "دريوش", "دمنات", "الرشيدية", "الرباط", "الريش", "زاكورة",
+    "زايو", "سطات", "سلا", "سيدي إفني", "سيدي بنور", "سيدي رحال", "سيدي سليمان", "سيدي قاسم",
+    "سيدي يحيى الغرب", "شفشاون", "الشماعية", "الصخيرات", "الصويرة", "طرفاية", "طانطان", "طنجة", "طاطا",
+    "العرائش", "العيون", "فاس", "الفنيدق", "الفقيه بن صالح", "كلميم", "القصر الكبير", "القنيطرة",
+    "قلعة السراغنة", "مارتيل", "مراكش", "مشرع بلقصيري", "المضيق", "المحمدية", "مكناس", "مولاي يعقوب",
+    "ميدلت", "ميسور", "الناظور", "النواصر", "ورزازات", "وزان", "وادي زم", "وجدة", "ولماس", "اليوسفية"
+  ];
+
+  function initCitySelector() {
+    const btnMoreCities = $("#btn-more-cities");
+    const btnCityIcon = $("#btn-city-icon");
+    const btnCloseCities = $("#btn-close-cities");
+    const citiesDropdownPanel = $("#cities-dropdown-panel");
+    const allCitiesContainer = $("#all-cities-container");
+    const citiesPanelFilter = $("#cities-panel-filter");
+    const cityInput = $("#customer-city");
+    const cityFieldWrap = $(".city-form-field");
+
+    if (!citiesDropdownPanel || !allCitiesContainer || !cityInput) return;
+
+    // Build the alphabetical cities list
+    allCitiesContainer.innerHTML = MOROCCAN_CITIES.map((c) => {
+      return `<button type="button" class="city-item-btn" data-city="${c}">${c}</button>`;
+    }).join("");
+
+    function openCities() {
+      citiesDropdownPanel.style.display = "flex";
+      if (citiesPanelFilter) {
+        citiesPanelFilter.value = "";
+        filterCities("");
+        setTimeout(() => citiesPanelFilter.focus(), 80);
+      }
+    }
+
+    function closeCities() {
+      citiesDropdownPanel.style.display = "none";
+    }
+
+    function toggleCities() {
+      if (citiesDropdownPanel.style.display === "flex") {
+        closeCities();
+      } else {
+        openCities();
+      }
+    }
+
+    if (btnMoreCities) btnMoreCities.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCities();
+    });
+
+    if (btnCityIcon) btnCityIcon.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCities();
+    });
+
+    if (btnCloseCities) btnCloseCities.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeCities();
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", (e) => {
+      if (cityFieldWrap && !cityFieldWrap.contains(e.target)) {
+        closeCities();
+      }
+    });
+
+    // Selecting a city from items or popular chips
+    citiesDropdownPanel.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-city]");
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const city = btn.getAttribute("data-city");
+      if (city) {
+        cityInput.value = city;
+        const cityErr = $("#city-error");
+        if (cityErr) cityErr.style.display = "none";
+        closeCities();
+        const addressInput = $("#customer-address");
+        if (addressInput) addressInput.focus();
+      }
+    });
+
+    // Filter cities function
+    function filterCities(term) {
+      const q = term.trim().toLowerCase();
+      const items = allCitiesContainer.querySelectorAll(".city-item-btn");
+      items.forEach((item) => {
+        const text = item.getAttribute("data-city") || "";
+        if (!q || text.includes(q)) {
+          item.style.display = "";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+
+    if (citiesPanelFilter) {
+      citiesPanelFilter.addEventListener("input", (e) => {
+        filterCities(e.target.value);
+      });
+    }
+
+    // Also support typing directly in customerCity to filter if panel is open
+    cityInput.addEventListener("input", (e) => {
+      if (citiesDropdownPanel.style.display === "flex") {
+        filterCities(e.target.value);
+      }
+    });
+  }
+
   /* ---------------- Phone Helpers & Validation ---------------- */
   function normalizePhone(phone) {
     let val = String(phone || "").replace(/[\s\-().]/g, "").replace(/[^\d+]/g, "");
@@ -522,6 +644,7 @@
     initQuantityControls();
     initCountdownTimer();
     initFaq();
+    initCitySelector();
     initOrderForm();
     initModal();
     initMobileBar();
@@ -536,6 +659,7 @@
     initQuantityControls();
     initCountdownTimer();
     initFaq();
+    initCitySelector();
     initOrderForm();
     initModal();
     initMobileBar();
