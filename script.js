@@ -433,9 +433,6 @@
         signal: ctrl.signal,
       }).then(() => clearTimeout(to)).catch(() => {});
     } catch (_) {}
-  }
-      }).then(() => clearTimeout(to)).catch(() => {});
-    } catch (_) {}
 
     return true;
   }
