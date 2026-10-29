@@ -402,47 +402,38 @@
     const webhookUrl = CONFIG.GOOGLE_SHEET_WEBHOOK;
     const jsonStr = JSON.stringify(order);
 
-    // 1. sendBeacon with text/plain (Zero-lag browser background delivery, 100% immune to CORS preflight)
-    if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
-      try {
-        const blob = new Blob([jsonStr], { type: "text/plain;charset=utf-8" });
-        navigator.sendBeacon(webhookUrl, blob);
-      } catch (_) {}
-    }
-
-    // 2. Fetch with mode: 'no-cors' and text/plain (Bypasses CORS restrictions on redirects in all mobile browsers)
+    // Primary High-Speed Direct Delivery with keepalive (immune to CORS preflight, delivers in < 1s)
     try {
-      fetch(webhookUrl, {
+      await fetch(webhookUrl, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: jsonStr,
         keepalive: true,
-      }).catch(() => {});
-    } catch (_) {}
+      });
+    } catch (_) {
+      // Fallback only if fetch failed to initiate
+      try {
+        if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+          const blob = new Blob([jsonStr], { type: "text/plain;charset=utf-8" });
+          navigator.sendBeacon(webhookUrl, blob);
+        }
+      } catch (__) {}
+    }
 
-    // 3. Parallel direct fetch with text/plain
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 6000);
-      fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: jsonStr,
-        signal: controller.signal,
-      }).then(() => clearTimeout(timeout)).catch(() => {});
-    } catch (_) {}
-
-    // 4. Also post to local backend if running
+    // Also post to local backend if running
     try {
       const localUrl = "http://localhost:3000/api/orders";
       const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 1200);
+      const to = setTimeout(() => ctrl.abort(), 1000);
       fetch(localUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: jsonStr,
         signal: ctrl.signal,
+      }).then(() => clearTimeout(to)).catch(() => {});
+    } catch (_) {}
+  }
       }).then(() => clearTimeout(to)).catch(() => {});
     } catch (_) {}
 
