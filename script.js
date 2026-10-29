@@ -421,19 +421,6 @@
       } catch (__) {}
     }
 
-    // Also post to local backend if running
-    try {
-      const localUrl = "http://localhost:3000/api/orders";
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 1000);
-      fetch(localUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: jsonStr,
-        signal: ctrl.signal,
-      }).then(() => clearTimeout(to)).catch(() => {});
-    } catch (_) {}
-
     return true;
   }
 
