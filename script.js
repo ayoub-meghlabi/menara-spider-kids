@@ -99,6 +99,15 @@
         mainFeaturedImage.src = targetImg;
         mainFeaturedImage.style.opacity = "1";
       }, 100);
+
+      // مزامنة تلقائية مع اختيار الباقة
+      if (targetImg.includes("trio-pack-1")) {
+        const p1Card = $('.pack-card[data-pack="pack1"]');
+        if (p1Card && !p1Card.classList.contains("active")) p1Card.click();
+      } else if (targetImg.includes("trio-pack-2")) {
+        const p2Card = $('.pack-card[data-pack="pack2"]');
+        if (p2Card && !p2Card.classList.contains("active")) p2Card.click();
+      }
     });
   }
 
