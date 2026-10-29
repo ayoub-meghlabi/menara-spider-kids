@@ -19,7 +19,7 @@
 
   // State
   const state = {
-    selectedSize: "4 - 5 سنوات",
+    selectedSize: "عامين",
     selectedPack: "pack1",
     selectedPackName: "المجموعة 1 (أسود + أزرق + رمادي)",
     isDoublePack: false,

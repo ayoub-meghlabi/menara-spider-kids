@@ -635,19 +635,19 @@ body {
   font-weight: 500;
 }
 
-/* Big Action Button */
+/* Action Button (Improved & Compact) */
 .btn-submit-order {
   width: 100%;
   background: linear-gradient(135deg, #10b981, #059669);
   color: #ffffff;
   border: none;
-  border-radius: 12px;
-  padding: 16px 20px;
+  border-radius: 10px;
+  padding: 11px 16px;
   font-family: inherit;
-  font-size: 17px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -657,14 +657,14 @@ body {
 }
 
 .btn-submit-order:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35);
 }
 
 .btn-submit-order span.sub-text {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 /* Secondary WhatsApp Order Button */
@@ -746,18 +746,13 @@ body {
   line-height: 1.5;
 }
 
-/* Photo Grid */
+/* Photo Grid (Two Pack Photos) */
 .photos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-@media (min-width: 600px) {
-  .photos-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
+  gap: 16px;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 .photo-item {
