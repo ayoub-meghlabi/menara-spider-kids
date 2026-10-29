@@ -18,7 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet" />
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20261029v4" />
+  <link rel="stylesheet" href="style.css?v=20261029v5" />
 
   <!-- Meta Pixel Code -->
   <script>
@@ -84,7 +84,7 @@
           <span class="free-ship-tag">🚚 توصيل مجاني</span>
         </div>
 
-        <!-- Thumbnails Strip -->
+        <!-- Thumbnails Strip (صور المجموعات والأطفال فقط) -->
         <div class="thumbnails-scroll" id="thumbnails-container" aria-label="صور المنتج المصغرة">
           <button type="button" class="thumb-btn active" data-img="images/trio-pack-1.jpeg" title="المجموعة 1: أسود + أزرق + رمادي">
             <img src="images/trio-pack-1.jpeg" alt="المجموعة 1" />
@@ -92,23 +92,23 @@
           <button type="button" class="thumb-btn" data-img="images/trio-pack-2.jpeg" title="المجموعة 2: أخضر + عنابي + بيج">
             <img src="images/trio-pack-2.jpeg" alt="المجموعة 2" />
           </button>
-          <button type="button" class="thumb-btn" data-img="images/pajama-navy.jpeg" title="أزرق">
-            <img src="images/pajama-navy.jpeg" alt="بيجامة زرقاء" />
+          <button type="button" class="thumb-btn" data-img="images/slide-1.jpeg" title="طقم الأطفال 1">
+            <img src="images/slide-1.jpeg" alt="صورة حقيقية للأطفال 1" />
           </button>
-          <button type="button" class="thumb-btn" data-img="images/pajama-black.jpeg" title="أسود">
-            <img src="images/pajama-black.jpeg" alt="بيجامة سوداء" />
+          <button type="button" class="thumb-btn" data-img="images/slide-2.jpeg" title="طقم الأطفال 2">
+            <img src="images/slide-2.jpeg" alt="صورة حقيقية للأطفال 2" />
           </button>
-          <button type="button" class="thumb-btn" data-img="images/pajama-gray.jpeg" title="رمادي">
-            <img src="images/pajama-gray.jpeg" alt="بيجامة رمادية" />
+          <button type="button" class="thumb-btn" data-img="images/slide-3.jpeg" title="طقم الأطفال 3">
+            <img src="images/slide-3.jpeg" alt="صورة حقيقية للأطفال 3" />
           </button>
-          <button type="button" class="thumb-btn" data-img="images/pajama-green.jpeg" title="أخضر">
-            <img src="images/pajama-green.jpeg" alt="بيجامة خضراء" />
+          <button type="button" class="thumb-btn" data-img="images/slide-4.jpeg" title="طقم الأطفال 4">
+            <img src="images/slide-4.jpeg" alt="صورة حقيقية للأطفال 4" />
           </button>
-          <button type="button" class="thumb-btn" data-img="images/pajama-burgundy.jpeg" title="عنابي">
-            <img src="images/pajama-burgundy.jpeg" alt="بيجامة عنابية" />
+          <button type="button" class="thumb-btn" data-img="images/slide-5.jpeg" title="طقم الأطفال 5">
+            <img src="images/slide-5.jpeg" alt="صورة حقيقية للأطفال 5" />
           </button>
-          <button type="button" class="thumb-btn" data-img="images/pajama-beige.jpeg" title="بيج">
-            <img src="images/pajama-beige.jpeg" alt="بيجامة بيج" />
+          <button type="button" class="thumb-btn" data-img="images/slide-6.jpeg" title="طقم الأطفال 6">
+            <img src="images/slide-6.jpeg" alt="صورة حقيقية للأطفال 6" />
           </button>
         </div>
       </section>
@@ -151,17 +151,23 @@
           </div>
         </div>
 
-        <!-- Size Selection (عام، عامين، 3 سنوات، 4 سنوات) -->
+        <!-- Size Selection (سنة حتى 10 سنوات) -->
         <div class="selector-group">
           <div class="selector-label">
             <span>اختر السن المناسب:</span>
-            <span class="selected-value" id="selected-size-label">عامين</span>
+            <span class="selected-value" id="selected-size-label">5 سنوات</span>
           </div>
           <div class="size-pills" id="size-pills-wrap">
-            <button type="button" class="size-pill" data-size="عام">عام</button>
-            <button type="button" class="size-pill active" data-size="عامين">عامين</button>
+            <button type="button" class="size-pill" data-size="سنة">سنة</button>
+            <button type="button" class="size-pill" data-size="سنتين">سنتين</button>
             <button type="button" class="size-pill" data-size="3 سنوات">3 سنوات</button>
             <button type="button" class="size-pill" data-size="4 سنوات">4 سنوات</button>
+            <button type="button" class="size-pill active" data-size="5 سنوات">5 سنوات</button>
+            <button type="button" class="size-pill" data-size="6 سنوات">6 سنوات</button>
+            <button type="button" class="size-pill" data-size="7 سنوات">7 سنوات</button>
+            <button type="button" class="size-pill" data-size="8 سنوات">8 سنوات</button>
+            <button type="button" class="size-pill" data-size="9 سنوات">9 سنوات</button>
+            <button type="button" class="size-pill" data-size="10 سنوات">10 سنوات</button>
           </div>
         </div>
 
@@ -295,10 +301,15 @@
               <span class="sub-text">الدفع عند الاستلام بعد معاينة المنتج • التوصيل مجاني 100%</span>
             </button>
 
+            <!-- Divider Between Order Form and WhatsApp -->
+            <div class="form-or-divider">
+              <span>أو يمكنك الطلب المباشر السريع</span>
+            </div>
+
             <!-- WhatsApp Direct Order Button -->
             <a href="https://wa.me/212710054951?text=سلام%20عليكم،%20بغيت%20نطلب%20طقم%20بيجامة%20سبايدرمان%20للأطفال" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-order" id="btn-direct-whatsapp">
               <span>💬</span>
-              <span>أو اطلب مباشرة عبر الواتساب بنقرة واحدة</span>
+              <span>طلب مباشر عبر الواتساب بنقرة واحدة</span>
             </a>
 
           </form>
@@ -501,6 +512,6 @@
   </div>
 
   <!-- Main JavaScript Logic -->
-  <script src="script.js?v=20261029v4"></script>
+  <script src="script.js?v=20261029v5"></script>
 </body>
 </html>
